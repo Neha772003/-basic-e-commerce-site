@@ -1,0 +1,184 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}NovaCart – Modern E-Commerce Store | Curated Essentials{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="hero-glow-1"></div>
+  <div class="hero-glow-2"></div>
+  <div class="container">
+    <div class="hero-grid">
+      <!-- Left Column: Copy & CTAs -->
+      <div class="hero-content">
+        <div class="hero-tag">
+          <span>✨</span> Next-Gen Shopping Experience
+        </div>
+        <h1 class="hero-title">
+          Discover Something <span>New</span>
+        </h1>
+        <p class="hero-subtitle">
+          Shop smarter. Live better. Explore premium handcrafted gadgets, lifestyle gear, and everyday modern essentials.
+        </p>
+        <div class="hero-cta-group">
+          <a href="#products" class="btn btn-primary btn-lg" id="exploreProductsBtn">
+            Explore Products ↓
+          </a>
+          <a href="{% url 'cart' %}" class="btn btn-secondary btn-lg" id="heroCartBtn">
+            View Cart ({{ cart_total_items|default:0 }})
+          </a>
+        </div>
+      </div>
+
+      <!-- Right Column: Glassmorphic Floating Showcase Card -->
+      <div class="hero-visual">
+        <div class="hero-card">
+          <div class="floating-badge floating-badge-1">
+            ⚡ Trending Now
+          </div>
+          <div class="hero-card-img-wrap">
+            {% if products.0.image %}
+              <img src="{{ products.0.image.url }}" alt="{{ products.0.name }}">
+            {% else %}
+              <div style="font-size: 3.5rem;">🎧</div>
+            {% endif %}
+          </div>
+          <h3 style="color: #ffffff; font-size: 1.15rem; margin-bottom: 6px;">
+            {% if products.0 %}{{ products.0.name }}{% else %}Wireless Headphones{% endif %}
+          </h3>
+          <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 12px;">
+            Engineered for pure acoustics and timeless comfort.
+          </p>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 1.3rem; font-weight: 800; color: #a5b4fc;">
+              ₹{% if products.0 %}{{ products.0.price }}{% else %}149.99{% endif %}
+            </span>
+            {% if products.0 %}
+              <a href="{% url 'product_detail' products.0.id %}" class="btn btn-sm btn-primary">View</a>
+            {% endif %}
+          </div>
+          <div class="floating-badge floating-badge-2">
+            ⭐ 4.9/5 Quality Rating
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Trust / Info Section -->
+<section class="trust-section">
+  <div class="container">
+    <div class="trust-grid">
+      <div class="trust-card">
+        <div class="trust-icon">🛡️</div>
+        <div class="trust-info">
+          <h4>Secure Shopping</h4>
+          <p>Protected transactions & data safety</p>
+        </div>
+      </div>
+      <div class="trust-card">
+        <div class="trust-icon">⚡</div>
+        <div class="trust-info">
+          <h4>Fast Processing</h4>
+          <p>Instant orders & swift fulfilment</p>
+        </div>
+      </div>
+      <div class="trust-card">
+        <div class="trust-icon">🛍️</div>
+        <div class="trust-info">
+          <h4>Easy Shopping</h4>
+          <p>Intuitive cart & seamless checkout</p>
+        </div>
+      </div>
+      <div class="trust-card">
+        <div class="trust-icon">💎</div>
+        <div class="trust-info">
+          <h4>Quality Products</h4>
+          <p>100% genuine verified goods</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Products Section -->
+<section class="products-section" id="products">
+  <div class="container">
+    <div class="section-header">
+      <span class="section-subtitle">Curated Catalog</span>
+      <h2 class="section-title">Featured Products</h2>
+    </div>
+
+    {% if products %}
+      <div class="product-grid">
+        {% for product in products %}
+          <div class="product-card" id="productCard{{ product.id }}">
+            <div class="product-image-wrap">
+              {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="img-fallback-box" style="display: none;">🛍️</div>
+              {% else %}
+                <div class="img-fallback-box">🛍️</div>
+              {% endif %}
+              
+              <div class="product-stock-tag">
+                {% if product.stock == 0 %}
+                  <span class="badge badge-danger">Out of stock</span>
+                {% elif product.stock <= 3 %}
+                  <span class="badge badge-warning">Only {{ product.stock }} left</span>
+                {% else %}
+                  <span class="badge badge-success">In stock</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="product-body">
+              <h3 class="product-title">
+                <a href="{% url 'product_detail' product.id %}">{{ product.name }}</a>
+              </h3>
+              <p class="product-description">{{ product.description }}</p>
+
+              <div class="product-footer">
+                <div class="price-row">
+                  <div class="product-price">
+                    <span class="currency">₹</span>{{ product.price }}
+                  </div>
+                  <span class="stock-count">Stock: {{ product.stock }}</span>
+                </div>
+
+                <div class="card-actions">
+                  <a href="{% url 'product_detail' product.id %}" class="btn btn-secondary btn-sm" id="viewDetailBtn{{ product.id }}">
+                    View Details
+                  </a>
+
+                  {% if product.is_in_stock %}
+                    <form action="{% url 'add_to_cart' product.id %}" method="POST" style="margin: 0;">
+                      {% csrf_token %}
+                      <input type="hidden" name="quantity" value="1">
+                      <button type="submit" class="btn btn-primary btn-sm btn-block" id="addToCartBtn{{ product.id }}">
+                        Add to Cart
+                      </button>
+                    </form>
+                  {% else %}
+                    <button class="btn btn-secondary btn-sm btn-block" disabled title="Out of stock">
+                      Sold Out
+                    </button>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state-card">
+        <div class="empty-state-icon">🏷️</div>
+        <h3 class="empty-state-title">No Products Available Yet</h3>
+        <p class="empty-state-desc">We are stocking up our catalog with amazing items. Check back shortly!</p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

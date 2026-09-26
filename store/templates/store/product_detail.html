@@ -1,0 +1,224 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} – NovaCart{% endblock %}
+{% block meta_description %}{{ product.description|truncatewords:25 }}{% endblock %}
+
+{% block content %}
+<div class="product-detail-section">
+  <div class="container">
+
+    <!-- Back to Products Breadcrumb -->
+    <a href="{% url 'home' %}#products" class="back-nav-link" id="backToProductsLink">
+      ← Back to Products
+    </a>
+
+    <div class="product-detail-card">
+
+      <!-- Left: High-Res Showcase Image -->
+      <div class="detail-gallery">
+        {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}" id="detailProductImage"
+          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+
+        <div class="img-fallback-box" style="display: none; font-size: 5rem;">
+          🛍️
+        </div>
+
+        {% else %}
+
+        <div class="img-fallback-box" style="font-size: 5rem;">
+          🛍️
+        </div>
+
+        {% endif %}
+      </div>
+
+      <!-- Right: Product Info & Actions -->
+      <div class="detail-info">
+
+        <div class="detail-meta-header">
+
+          {% if product.stock == 0 %}
+          <span class="badge badge-danger">
+            Out of stock
+          </span>
+
+          {% elif product.stock <= 3 %} <span class="badge badge-warning">
+            Only {{ product.stock }} left
+            </span>
+
+            {% else %}
+            <span class="badge badge-success">
+              In Stock ({{ product.stock }} available)
+            </span>
+            {% endif %}
+
+            <span class="badge badge-primary">
+              SKU: NC-{{ product.id|stringformat:"04d" }}
+            </span>
+
+        </div>
+
+        <h1 class="detail-title" id="productTitle">
+          {{ product.name }}
+        </h1>
+
+        <div class="detail-rating">
+          <span>★★★★★</span>
+          <span class="rating-count">
+            4.9 / 5 (120+ Verified Purchases)
+          </span>
+        </div>
+
+        <div class="detail-price-box">
+
+          <!-- Price -->
+          <div>
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">
+              Price
+            </div>
+
+            <div class="detail-price">
+              <span>₹</span>{{ product.price }}
+            </div>
+          </div>
+
+          <!-- Availability -->
+          <div style="text-align: right;">
+
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">
+              Availability
+            </div>
+
+            {% if product.is_in_stock %}
+
+            <div style="font-size: 1rem; font-weight: 700; color: var(--success);">
+              {{ product.stock }} In Stock
+            </div>
+
+            {% else %}
+
+            <div style="font-size: 1rem; font-weight: 700; color: var(--danger);">
+              Sold Out
+            </div>
+
+            {% endif %}
+
+          </div>
+
+        </div>
+
+        <!-- Product Description -->
+        <div>
+
+          <h4 class="detail-description-title">
+            Product Overview
+          </h4>
+
+          <p class="detail-description">
+            {{ product.description }}
+          </p>
+
+        </div>
+
+        <!-- Add to Cart Form -->
+        <div class="detail-purchase-form">
+
+          {% if product.is_in_stock %}
+
+          <form action="{% url 'add_to_cart' product.id %}" method="POST" id="detailAddToCartForm">
+
+            {% csrf_token %}
+
+            <div class="quantity-control-wrap">
+
+              <span class="qty-label">
+                Select Quantity:
+              </span>
+
+              <div class="qty-stepper">
+
+                <button type="button" class="qty-btn qty-btn-minus" aria-label="Decrease quantity">
+                  −
+                </button>
+
+                <input type="number" name="quantity" class="qty-input" value="1" min="1" max="{{ product.stock }}"
+                  id="productQtyInput">
+
+                <button type="button" class="qty-btn qty-btn-plus" aria-label="Increase quantity">
+                  +
+                </button>
+
+              </div>
+
+              {% if in_cart_qty > 0 %}
+
+              <span style="font-size: 0.85rem; color: var(--primary); font-weight: 600;">
+                (Currently in cart: {{ in_cart_qty }})
+              </span>
+
+              {% endif %}
+
+            </div>
+
+            <!-- Cart Buttons -->
+            <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+
+              <button type="submit" class="btn btn-primary btn-lg" style="flex: 1;" id="detailAddToCartBtn">
+                🛒 Add to Shopping Cart
+              </button>
+
+              <a href="{% url 'cart' %}" class="btn btn-secondary btn-lg">
+                Go to Cart →
+              </a>
+
+            </div>
+
+          </form>
+
+          {% else %}
+
+          <!-- Out of Stock Message -->
+          <div
+            style="padding: 16px; background-color: var(--danger-bg); border: 1px solid var(--danger-border); border-radius: var(--radius-md); text-align: center; color: var(--danger); font-weight: 600;">
+            This product is currently out of stock.
+            Please check back later!
+          </div>
+
+          {% endif %}
+
+          <!-- Trust Bullets -->
+          <div class="detail-trust-bullets">
+
+            <div class="trust-bullet">
+              <span>✓</span>
+              Fast Order Processing
+            </div>
+
+            <div class="trust-bullet">
+              <span>✓</span>
+              30-Day Hassle-Free Returns
+            </div>
+
+            <div class="trust-bullet">
+              <span>✓</span>
+              Premium Quality Verified
+            </div>
+
+            <div class="trust-bullet">
+              <span>✓</span>
+              Secure Database Checkout
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
+{% endblock %}

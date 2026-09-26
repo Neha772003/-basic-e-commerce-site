@@ -1,0 +1,136 @@
+{% extends 'store/base.html' %}
+{% load static %}
+
+{% block title %}Shopping Cart – NovaCart{% endblock %}
+
+{% block content %}
+<div class="cart-section">
+  <div class="container">
+    <h1 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 32px; letter-spacing: -0.5px;">
+      Your Shopping Cart
+    </h1>
+
+    {% if cart_items %}
+      <div class="cart-layout">
+        <!-- Left: Cart Items List -->
+        <div class="cart-items-container">
+          <div class="cart-header-row">
+            <div>Product</div>
+            <div>Price</div>
+            <div>Quantity</div>
+            <div>Total</div>
+            <div></div>
+          </div>
+
+          {% for item in cart_items %}
+            <div class="cart-item-row" id="cartItemRow{{ item.product.id }}">
+              <!-- Product Image & Name -->
+              <div class="cart-item-product">
+                {% if item.product.image %}
+                  <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="cart-item-img">
+                {% else %}
+                  <div class="cart-item-img" style="display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">📦</div>
+                {% endif %}
+                <div>
+                  <a href="{% url 'product_detail' item.product.id %}" class="cart-item-name">
+                    {{ item.product.name }}
+                  </a>
+                  <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 4px;">
+                    Stock available: {{ item.max_stock }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Unit Price -->
+              <div class="cart-item-price">
+                ₹{{ item.product.price }}
+              </div>
+
+              <!-- Quantity Controls Form -->
+              <div>
+                <form action="{% url 'update_cart_quantity' item.product.id %}" method="POST" data-auto-submit="true" style="margin: 0;">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="set">
+                  <div class="qty-stepper">
+                    <button type="button" class="qty-btn qty-btn-minus" aria-label="Decrease quantity">−</button>
+                    <input type="number" name="quantity" class="qty-input" value="{{ item.quantity }}" min="1" max="{{ item.max_stock }}">
+                    <button type="button" class="qty-btn qty-btn-plus" aria-label="Increase quantity">+</button>
+                  </div>
+                </form>
+              </div>
+
+              <!-- Subtotal for Item -->
+              <div class="cart-item-total">
+                ₹{{ item.item_total }}
+              </div>
+
+              <!-- Remove Button -->
+              <div>
+                <form action="{% url 'remove_from_cart' item.product.id %}" method="POST" class="form-remove-item" data-product-name="{{ item.product.name }}" style="margin: 0;">
+                  {% csrf_token %}
+                  <button type="submit" class="cart-item-remove-btn" title="Remove item" aria-label="Remove item">
+                    🗑️
+                  </button>
+                </form>
+              </div>
+            </div>
+          {% endfor %}
+
+          <div style="margin-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+            <a href="{% url 'home' %}#products" class="btn btn-secondary btn-sm">
+              ← Continue Shopping
+            </a>
+          </div>
+        </div>
+
+        <!-- Right: Order Summary Sidebar -->
+        <div class="summary-card">
+          <h2 class="summary-title">Order Summary</h2>
+
+          <div class="summary-row">
+            <span>Items Subtotal:</span>
+            <span style="font-weight: 700; color: var(--text-main);">₹{{ grand_total }}</span>
+          </div>
+
+          <div class="summary-row">
+            <span>Standard Shipping:</span>
+            <span class="free-shipping-tag">FREE</span>
+          </div>
+
+          <div class="summary-row">
+            <span>Estimated Tax:</span>
+            <span>₹0.00</span>
+          </div>
+
+          <div class="summary-row grand-total-row">
+            <span>Estimated Total:</span>
+            <span style="color: var(--primary);">₹{{ grand_total }}</span>
+          </div>
+
+          <div style="margin-top: 24px;">
+            <a href="{% url 'checkout' %}" class="btn btn-primary btn-lg btn-block" id="proceedCheckoutBtn">
+              Proceed to Checkout →
+            </a>
+          </div>
+
+          <div style="margin-top: 18px; font-size: 0.8rem; color: var(--text-muted); text-align: center;">
+            🔒 Safe & Secure Checkout Simulation
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <!-- Empty Cart Screen -->
+      <div class="empty-state-card">
+        <div class="empty-state-icon">🛒</div>
+        <h2 class="empty-state-title">Your Cart is Currently Empty</h2>
+        <p class="empty-state-desc">
+          Looks like you haven't added any products to your shopping bag yet. Explore our featured collection to get started!
+        </p>
+        <a href="{% url 'home' %}#products" class="btn btn-primary btn-lg">
+          Explore Featured Products
+        </a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

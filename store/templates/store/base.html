@@ -1,0 +1,134 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}NovaCart – Modern E-Commerce Store{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}Experience effortless modern shopping with NovaCart. Curated premium lifestyle and technology products with seamless checkout.{% endblock %}">
+  
+  <!-- Favicon / Brand Styling -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Custom Pure Vanilla CSS -->
+  <link rel="stylesheet" href="{% static 'store/css/style.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+  <!-- Toast Notification Container -->
+  {% if messages %}
+  <div class="toast-container" id="toastContainer">
+    {% for message in messages %}
+    <div class="toast toast-{{ message.tags|default:'info' }}" role="alert">
+      <span>{{ message }}</span>
+      <button type="button" class="toast-close" aria-label="Close">✕</button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Header & Navigation -->
+  <header class="site-header">
+    <div class="container">
+      <nav class="navbar" aria-label="Main Navigation">
+        <!-- Logo -->
+        <a href="{% url 'home' %}" class="brand-logo" id="brandLogo">
+          <div class="brand-logo-icon">✦</div>
+          <span>Nova</span>Cart
+        </a>
+
+        <!-- Desktop Navigation Links -->
+        <ul class="nav-menu" id="navMenu">
+          <li><a href="{% url 'home' %}" class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">Home</a></li>
+          <li><a href="{% url 'home' %}#products" class="nav-link">Products</a></li>
+          <li><a href="{% url 'cart' %}" class="nav-link {% if request.resolver_match.url_name == 'cart' %}active{% endif %}">Cart</a></li>
+          {% if user.is_authenticated %}
+            <li><a href="{% url 'logout' %}" class="nav-link">Logout</a></li>
+          {% else %}
+            <li><a href="{% url 'login' %}" class="nav-link {% if request.resolver_match.url_name == 'login' %}active{% endif %}">Sign In</a></li>
+          {% endif %}
+        </ul>
+
+        <!-- Action Items (Cart & Auth) -->
+        <div class="nav-actions">
+          <a href="{% url 'cart' %}" class="cart-button" title="View Shopping Cart" id="cartNavButton">
+            🛒
+            <span class="cart-badge" id="navCartBadge">{{ cart_total_items|default:0 }}</span>
+          </a>
+
+          {% if user.is_authenticated %}
+            <div class="user-nav-dropdown">
+              <span class="user-greeting">
+                <span class="avatar-circle">{{ user.username|make_list|first|upper }}</span>
+                {{ user.username }}
+              </span>
+              <a href="{% url 'logout' %}" class="btn btn-secondary btn-sm" id="logoutBtn">Logout</a>
+            </div>
+          {% else %}
+            <a href="{% url 'login' %}" class="btn btn-secondary btn-sm" id="loginBtn">Sign In</a>
+            <a href="{% url 'register' %}" class="btn btn-primary btn-sm" id="registerBtn">Register</a>
+          {% endif %}
+
+          <!-- Mobile Toggle -->
+          <button class="mobile-toggle" aria-label="Toggle navigation menu" aria-expanded="false" id="mobileMenuBtn">☰</button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content Block -->
+  <main id="mainContent">
+    {% block content %}
+    {% endblock %}
+  </main>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="brand-logo" style="color: #ffffff; margin-bottom: 12px;">
+            <div class="brand-logo-icon">✦</div>
+            <span>Nova</span>Cart
+          </div>
+          <p>Simple shopping. Better experience. Discover high-quality products crafted for modern lifestyles.</p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Navigation</h4>
+          <ul class="footer-links">
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li><a href="{% url 'home' %}#products">Products</a></li>
+            <li><a href="{% url 'cart' %}">Cart ({{ cart_total_items|default:0 }})</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Account</h4>
+          <ul class="footer-links">
+            {% if user.is_authenticated %}
+              <li><span style="color: #cbd5e1;">Logged in as <strong>{{ user.username }}</strong></span></li>
+              <li><a href="{% url 'logout' %}">Sign Out</a></li>
+            {% else %}
+              <li><a href="{% url 'login' %}">Sign In</a></li>
+              <li><a href="{% url 'register' %}">Create Account</a></li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>© 2026 NovaCart. All rights reserved.</p>
+        <p>Built with Django & Vanilla Web Technologies</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Vanilla JS Script -->
+  <script src="{% static 'store/js/script.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>
